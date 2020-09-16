@@ -115,7 +115,7 @@ function isTriangle(a, b, c) {
  *
  * @param {object} rect1
  * @param {object} rect2
- * @return {bool}
+ * @return {boolean}
  *
  * @example:
  *   { top: 0, left: 0, width: 10, height: 10 },
@@ -125,8 +125,46 @@ function isTriangle(a, b, c) {
  *   { top:20, left:20, width: 20, height: 20 }    =>  false
  *
  */
-function doRectanglesOverlap(/* rect1, rect2 */) {
-  throw new Error('Not implemented');
+function doRectanglesOverlap(rect1, rect2) {
+  function isPointInsideRectangle(rectangle, point) {
+    return rectangle.left < point.x
+      && rectangle.width + rectangle.left > point.x
+      && -rectangle.top > point.y
+      && rectangle.height + rectangle.top > point.y;
+  }
+
+  return isPointInsideRectangle(rect1, {
+    x: rect2.left,
+    y: -rect2.top,
+  })
+    || isPointInsideRectangle(rect1, {
+      x: rect2.left,
+      y: -rect2.top - rect2.height,
+    })
+    || isPointInsideRectangle(rect1, {
+      x: rect2.left + rect2.width,
+      y: -rect2.top,
+    })
+    || isPointInsideRectangle(rect1, {
+      x: rect2.left + rect2.width,
+      y: -rect2.top - rect2.height,
+    })
+    || isPointInsideRectangle(rect2, {
+      x: rect1.left,
+      y: -rect1.top,
+    })
+    || isPointInsideRectangle(rect2, {
+      x: rect1.left,
+      y: -rect1.top - rect1.height,
+    })
+    || isPointInsideRectangle(rect2, {
+      x: rect1.left + rect1.width,
+      y: -rect1.top,
+    })
+    || isPointInsideRectangle(rect2, {
+      x: rect1.left + rect1.width,
+      y: -rect1.top - rect1.height,
+    });
 }
 
 
@@ -149,15 +187,15 @@ function doRectanglesOverlap(/* rect1, rect2 */) {
  *
  * @param {object} circle
  * @param {object} point
- * @return {bool}
+ * @return {boolean}
  *
  * @example:
  *   { center: { x:0, y:0 }, radius:10 },  { x:0, y:0 }     => true
  *   { center: { x:0, y:0 }, radius:10 },  { x:10, y:10 }   => false
  *
  */
-function isInsideCircle(/* circle, point */) {
-  throw new Error('Not implemented');
+function isInsideCircle(circle, point) {
+  return (point.x - circle.center.x) ** 2 + (point.y - circle.center.y) ** 2 < circle.radius ** 2;
 }
 
 
@@ -165,15 +203,22 @@ function isInsideCircle(/* circle, point */) {
  * Returns the first non repeated char in the specified strings otherwise returns null.
  *
  * @param {string} str
- * @return {string}
+ * @return {string|null}
  *
  * @example:
  *   'The quick brown fox jumps over the lazy dog' => 'T'
  *   'abracadabra'  => 'c'
  *   'entente' => null
  */
-function findFirstSingleChar(/* str */) {
-  throw new Error('Not implemented');
+function findFirstSingleChar(str) {
+  let subStr = str;
+  for (let i = 0; i < subStr.length; i += 1) {
+    if (subStr.lastIndexOf(subStr[i]) === subStr.indexOf(subStr[i])) return subStr[i];
+    subStr = subStr.split(subStr[i])
+      .join('');
+    i -= 1;
+  }
+  return null;
 }
 
 
@@ -186,8 +231,8 @@ function findFirstSingleChar(/* str */) {
  *
  * @param {number} a
  * @param {number} b
- * @param {bool} isStartIncluded
- * @param {bool} isEndIncluded
+ * @param {boolean} isStartIncluded
+ * @param {boolean} isEndIncluded
  * @return {string}
  *
  * @example
@@ -199,8 +244,13 @@ function findFirstSingleChar(/* str */) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  const c = Math.min(a, b);
+  const d = Math.max(a, b);
+  if (isStartIncluded && isEndIncluded) return `[${c}, ${d}]`;
+  if (!isStartIncluded && !isEndIncluded) return `(${c}, ${d})`;
+  if (isStartIncluded) return `[${c}, ${d})`;
+  return `(${c}, ${d}]`;
 }
 
 
@@ -249,7 +299,7 @@ function reverseInteger(num) {
  *
  * See algorithm here : https://en.wikipedia.org/wiki/Luhn_algorithm
  *
- * @param {number} cnn
+ * @param {number} ccn
  * @return {boolean}
  *
  * @example:
@@ -263,8 +313,15 @@ function reverseInteger(num) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const array = ccn.toString()
+    .split('');
+  for (let i = array.length - 2; i >= 0; i -= 2) {
+    let a = +array[i] * 2;
+    if (a >= 10) a = Math.floor(a / 10) + (a % 10);
+    array[i] = a;
+  }
+  return (array.reduce((x, y) => (+x) + (+y)) % 10 === 0);
 }
 
 /**
@@ -272,7 +329,7 @@ function isCreditCardNumber(/* ccn */) {
  *   step1 : find sum of all digits
  *   step2 : if sum > 9 then goto step1 otherwise return the sum
  *
- * @param {number} n
+ * @param {number} num
  * @return {number}
  *
  * @example:
@@ -315,8 +372,19 @@ function getDigitalRoot(num) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  const openBrackets = ['(', '[', '{', '<'];
+  const closeBrackets = [')', ']', '}', '>'];
+  let result = str;
+  for (let i = 0; i < result.length - 1; i += 1) {
+    if (openBrackets.indexOf(result[i]) === closeBrackets.indexOf(result[i + 1])
+      && openBrackets.indexOf(result[i]) !== -1) {
+      result = result.slice(0, i)
+        .concat(result.slice(i + 2));
+      i = -1;
+    }
+  }
+  return result.length === 0;
 }
 
 
@@ -340,15 +408,22 @@ function isBracketsBalanced(/* str */) {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString(/* num, n */) {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  let number = num;
+  const result = [];
+  while (number > 0) {
+    result.push(number % n);
+    number = Math.floor(number / n);
+  }
+  return result.reverse()
+    .join('');
 }
 
 
 /**
- * Returns the commom directory path for specified array of full filenames.
+ * Returns the common directory path for specified array of full filenames.
  *
- * @param {array} pathes
+ * @param {array} paths
  * @return {string}
  *
  * @example:
@@ -357,8 +432,20 @@ function toNaryString(/* num, n */) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/webalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(paths) {
+  let result = '';
+  let string = paths;
+  if (paths.filter((x) => x[0] === '/').length === paths.length) result = result.concat('/');
+  string = string.map((x) => x.split('/'));
+  string.sort();
+  for (let i = 1; i < string[0].length - 1; i += 1) {
+    const base = string[0][i];
+    for (let j = 1; j < string.length; j += 1) {
+      if (base !== string[j][i]) return result;
+    }
+    result = result.concat(base, '/');
+  }
+  return result;
 }
 
 
@@ -380,8 +467,21 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const result = [];
+  for (let i = 0; i < m1.length; i += 1) {
+    const line = [];
+    for (let j = 0; j < m2[0].length; j += 1) {
+      let sum = 0;
+      for (let k = 0; k < m1[i].length; k += 1) {
+        sum += (m1[i][k] * m2[k][j]);
+      }
+
+      line.push(sum);
+    }
+    result.push(line);
+  }
+  return result;
 }
 
 
@@ -415,8 +515,20 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  for (let i = 0; i < 3; i += 1) {
+    const isThreeInRaw = position[0][i] === position[1][i] && position[0][i] === position[2][i];
+    const isThreeInColumn = position[i][0] === position[i][1] && position[i][0] === position[i][2];
+    if (isThreeInRaw && position[0][i] !== undefined) {
+      return position[0][i];
+    }
+    if (isThreeInColumn && position[i][0] !== undefined) {
+      return position[i][0];
+    }
+  }
+  if (position[0][0] === position[1][1] && position[0][0] === position[2][2]) return position[0][0];
+  if (position[0][2] === position[1][1] && position[0][2] === position[2][0]) return position[0][2];
+  return undefined;
 }
 
 
